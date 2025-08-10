@@ -11,6 +11,21 @@ spring:
     username: ${SPRING_RABBITMQ_USERNAME:admin}
     password: ${SPRING_RABBITMQ_PASSWORD:admin123}
 
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/file_downloader}
+    username: ${SPRING_DATASOURCE_USERNAME:dbuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:dbpass123}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
 management:
   endpoints:
     web:
@@ -42,5 +57,6 @@ logging:
   level:
     com.example.filedownloader: DEBUG
     org.springframework.amqp: INFO
+    org.springframework.data.repository: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
