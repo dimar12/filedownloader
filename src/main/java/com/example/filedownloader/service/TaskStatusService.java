@@ -3,6 +3,7 @@ package com.example.filedownloader.service;
 import com.example.filedownloader.entity.DownloadTaskEntity;
 import com.example.filedownloader.model.DownloadTask;
 import com.example.filedownloader.model.TaskStatus;
+import com.example.filedownloader.repository.DownloadChunkRepository;
 import com.example.filedownloader.repository.DownloadTaskRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class TaskStatusService {
 
     private final DownloadTaskRepository taskRepository;
+    public final DownloadChunkRepository downloadChunkRepository;
 
     @PostConstruct
     public void init() {
@@ -53,16 +55,9 @@ public class TaskStatusService {
                 .collect(Collectors.toList());
     }
 
-    public long getTaskCount() {
-        return taskRepository.count();
-    }
-
-    public long getTaskCountByStatus(TaskStatus status) {
-        return taskRepository.countByStatus(status);
-    }
-
     public void removeTask(String taskId) {
         taskRepository.deleteById(taskId);
+        downloadChunkRepository.deleteByTaskId(taskId);
         log.debug("Удалена задача: id={}", taskId);
     }
 
@@ -70,6 +65,7 @@ public class TaskStatusService {
         List<TaskStatus> completedStatuses = Arrays.asList(TaskStatus.COMPLETED, TaskStatus.FAILED);
         List<DownloadTaskEntity> completedTasks = taskRepository.findAllByStatusIn(completedStatuses);
         int count = completedTasks.size();
+        completedTasks.forEach(task -> downloadChunkRepository.deleteByTaskId(task.getId()));
         taskRepository.deleteAll(completedTasks);
         log.info("Очищено {} завершенных задач", count);
     }
